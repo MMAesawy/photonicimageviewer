@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import photonicimageviewer.ConvenientImageView?>
+<?import photonicimageviewer.ImageButton?>
+
+
+<BorderPane fx:id="main_container" prefHeight="480.0" prefWidth="640.0" styleClass="general" stylesheets="@MainUICSS.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photonicimageviewer.MainUIController">
+    <center>
+      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <children>
+              <ConvenientImageView fx:id="main_imageview" pickOnBounds="true" preserveRatio="true" />
+            <Label fx:id="error_label" mouseTransparent="true" textAlignment="CENTER" />
+         </children>
+      </StackPane>
+   </center>
+    <bottom>
+      <AnchorPane id="bottom_toolbar" fx:id="bottom_toolbar" styleClass="toolbar" stylesheets="@MainUICSS.css" BorderPane.alignment="CENTER">
+         <children>
+            <HBox fx:id="button_hbox" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <ImageView fx:id="prev_button" pickOnBounds="true" preserveRatio="true" rotate="180.0" />
+                  <ImageView fx:id="next_button" pickOnBounds="true" preserveRatio="true" />
+               </children>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </padding>
+            </HBox>
+            <HBox fx:id="label_hbox" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <Label fx:id="file_name_label" styleClass="filenamelabel" stylesheets="@MainUICSS.css">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
+               </padding>
+            </HBox>
+         </children>
+         <opaqueInsets>
+            <Insets top="10.0" />
+         </opaqueInsets>
+      </AnchorPane>
+   </bottom>
+   <top>
+      <MenuBar fx:id="top_toolbar" BorderPane.alignment="CENTER">
+         <menus>
+            <Menu mnemonicParsing="false" text="File">
+               <items>
+                   <MenuItem mnemonicParsing="false" text="Open" />  
+                  <MenuItem mnemonicParsing="false" text="Exit" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Rotate Clockwise" />
+                  <MenuItem mnemonicParsing="false" text="Rotate Counter-clockwise" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Tools">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="Options" />
+               </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+               <items>
+                  <MenuItem mnemonicParsing="false" text="About" />
+               </items>
+            </Menu>
+         </menus>
+      </MenuBar>
+   </top>
+   <left>
+      <BorderPane mouseTransparent="true" BorderPane.alignment="CENTER">
+         <left>
+            <ImageButton fx:id="left_arrow" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" rotate="180.0" scaleX="0.25" scaleY="0.25" BorderPane.alignment="CENTER">
+               <image>
+                  <Image url="@../../../../../Desktop/arrow.png" />
+               </image>
+            </ImageButton>
+         </left>
+      </BorderPane>
+   </left>
+   <right>
+      <BorderPane mouseTransparent="true" BorderPane.alignment="CENTER">
+         <right>
+            <ImageButton fx:id="right_arrow" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" scaleX="0.25" scaleY="0.25" BorderPane.alignment="CENTER">
+               <image>
+                  <Image url="@../../../../../Desktop/arrow.png" />
+               </image>
+            </ImageButton>
+         </right>
+      </BorderPane>
+   </right>
+   
+</BorderPane>
