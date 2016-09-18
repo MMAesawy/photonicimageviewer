@@ -75,16 +75,12 @@ public class ImageTreader{
     /**
      *  @return The image file matching the current treader index.
      */
-    public Image getImage(){
+    public Image getImage() throws IOException{
         if (imageList.length == 0) return null;
         
         Image image = null;
-        try{
-            image = new Image(new FileInputStream(imageList[treadIndex]));
-        }
-        catch (IOException e){
-            System.out.println("IO Error: " + e.toString());
-        }
+        image = new Image(new FileInputStream(imageList[treadIndex]));
+        
         return image;
     }
     

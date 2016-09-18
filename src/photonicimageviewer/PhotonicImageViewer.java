@@ -5,6 +5,7 @@
  */
 package photonicimageviewer;
 
+import java.io.IOException;
 import java.util.List;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -21,6 +22,7 @@ public class PhotonicImageViewer extends Application {
     private ImageTreader treader;
     public final static double WINDOW_WIDTH = 640;
     public final static double WINDOW_HEIGHT = WINDOW_WIDTH * 3 / 4;
+    private MainUIController mainUI;
     
     /*
         Definitions for a singleton.
@@ -34,10 +36,12 @@ public class PhotonicImageViewer extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
-        Parent root = FXMLLoader.load(getClass().getResource("MainUI.fxml"));
+        FXMLLoader loader = 
+                new FXMLLoader(getClass().getResource("MainUI.fxml"));
         
-        
-        
+        Parent root = loader.load();
+        mainUI = loader.getController();
+       
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
@@ -58,6 +62,7 @@ public class PhotonicImageViewer extends Application {
     public void init() throws Exception{
         
         List<String> args = getParameters().getRaw();
+        if (!args.isEmpty()) open((String[])args.toArray());
         //open("C:\\New folder\\DSC_0005.jpg");
         open("C:\\Users\\MMAesawy\\Pictures\\pengu.jpg");
         //TODO: Set proper no argument case.
@@ -65,14 +70,30 @@ public class PhotonicImageViewer extends Application {
     }
     
     /**
+     * Displays an error message to the user flush with the UI.
+     * @param msg The error message to display.
+     */
+    public void displayError(String msg){
+        mainUI.displayMessage(msg);
+    }
+    
+    /**
         Sets a new image treader in the specified directory.
         The method is functionally equivalent to File > Open
-        @param filePath The path to the file to open.
+        @param filePaths The path to the file to open.
     */
     public void open(String[] filePaths){
         //TODO set case for incompatible file.
+        try{
+            treader = new ImageTreader(filePaths);
+        }
+        catch(NullPointerException e){
+            displayError("Error loading image(s)."
+                    + "\nThe program did not find a file"
+                    + " at the specified file path.");
+        }
+
         
-        treader = new ImageTreader(filePaths);
     }
     public void open(String filePath){
         String[] a = { filePath };

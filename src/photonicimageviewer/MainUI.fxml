@@ -21,7 +21,7 @@
       <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <children>
               <ConvenientImageView fx:id="main_imageview" pickOnBounds="true" preserveRatio="true" />
-            <Label fx:id="error_label" mouseTransparent="true" textAlignment="CENTER" />
+            <Label fx:id="error_label" mouseTransparent="true" textAlignment="CENTER" styleClass="errorlabel" stylesheets="@MainUICSS.css" />
          </children>
       </StackPane>
    </center>

@@ -202,6 +202,26 @@ public class MainUIController implements Initializable {
         }
     }
     
+    /**
+     * Unloads the current image and displays a message to the user on
+     * middle of the screen.
+     * @param msg The message to display.
+     */
+    public void displayMessage(String msg){
+        error_label.setDisable(false);
+        error_label.setOpacity(1);
+        error_label.setText(msg);
+        main_imageview.setImage(null);
+    }
+    
+    /**
+     * Resets the error message label.
+     */
+    public void resetError(){
+        error_label.setText("");
+        error_label.setDisable(true);
+        error_label.setOpacity(0);
+    }
     
     /**
         Sets the image of the main ImageView using the file path passed as
@@ -209,8 +229,18 @@ public class MainUIController implements Initializable {
         @param filePath The path of the image file to be loaded.
     */
     private void loadImage(){
+        resetError();
         ImageTreader treader = getTreader();
-        Image image = treader.getImage();
+        Image image = null;
+        try{
+             image = treader.getImage();
+        }
+        catch(IOException e){
+            PhotonicImageViewer.getInstance().displayError(
+                    "Error loading image. "
+                    + "\nThe image was probably deleted or moved"
+                            + " \nafter the program was launched.");
+        }
         main_imageview.setImage(image);
         file_name_label.setText(treader.getImageName());
         main_imageview.setRotate(0);
@@ -568,7 +598,6 @@ public class MainUIController implements Initializable {
                         main_imageview.getBottom() + addedTranslationY
                         <= top_toolbar.getHeight() + IMAGE_MARGIN;
                 
-                //System.out.println("BOTTOM TOP " + willBeOutOfBottomBounds + " " + willBeOutOfTopBounds);
                 return willBeOutOfBottomBounds || willBeOutOfTopBounds;
             }
             
