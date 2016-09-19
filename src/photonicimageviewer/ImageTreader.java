@@ -5,6 +5,10 @@
  */
 package photonicimageviewer;
 
+import com.drew.imaging.ImageMetadataReader;
+import com.drew.metadata.Directory;
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -154,6 +158,24 @@ public class ImageTreader{
      */
     public boolean isIndexAtArrayEdge(){
         return (treadIndex == 0 || treadIndex == imageList.length - 1);
+    }
+    
+    /**
+     * Retrieves the orientation data from the current image's EXIF data.
+     * @return The value of the image's orientation tag.
+     */
+    public int getImageOrientation(){
+        if (imageList.length == 0) return 1;
+        int orientation;
+        try{
+            Metadata data = ImageMetadataReader.readMetadata(getImageFile());
+            Directory directory =
+                    data.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
+            System.out.println("orientation: " + orientation);
+        }
+        catch (Exception e){ return 1; }
+        return orientation;
     }
     
     public boolean getIsWrap(){ return isWrap; }

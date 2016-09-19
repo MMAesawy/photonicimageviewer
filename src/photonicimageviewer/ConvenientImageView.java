@@ -97,4 +97,18 @@ public class ConvenientImageView extends ImageView{
         setRotate(getRotate() + 90 * (clockwise ? 1 : -1));
     }
     
+    /**
+     * Flips the ImageView horizontally.
+     */
+    public void flipHorizontally(){
+        setScaleX(-getScaleX());
+    }
+    
+    /**
+     * Flips the ImageView vertically.
+     */
+    public void flipVertically(){
+        setScaleY(-getScaleY());
+    }
+    
 }

@@ -26,9 +26,9 @@
       </StackPane>
    </center>
     <bottom>
-      <AnchorPane id="bottom_toolbar" fx:id="bottom_toolbar" styleClass="toolbar" stylesheets="@MainUICSS.css" BorderPane.alignment="CENTER">
-         <children>
-            <HBox fx:id="button_hbox" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane id="bottom_toolbar" fx:id="bottom_toolbar" styleClass="toolbar" stylesheets="@MainUICSS.css" BorderPane.alignment="CENTER">
+         <left>
+            <HBox fx:id="button_hbox" spacing="8.0" BorderPane.alignment="CENTER_LEFT" >
                <children>
                   <ImageView fx:id="prev_button" pickOnBounds="true" preserveRatio="true" rotate="180.0" />
                   <ImageView fx:id="next_button" pickOnBounds="true" preserveRatio="true" />
@@ -37,7 +37,9 @@
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                </padding>
             </HBox>
-            <HBox fx:id="label_hbox" spacing="8.0" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        </left>
+        <right>
+            <HBox fx:id="label_hbox" spacing="8.0" BorderPane.alignment="CENTER_RIGHT" >
                <children>
                   <Label fx:id="file_name_label" styleClass="filenamelabel" stylesheets="@MainUICSS.css">
                      <HBox.margin>
@@ -49,11 +51,11 @@
                   <Insets bottom="8.0" left="8.0" right="8.0" top="8.0" />
                </padding>
             </HBox>
-         </children>
+         </right>
          <opaqueInsets>
             <Insets top="10.0" />
          </opaqueInsets>
-      </AnchorPane>
+      </BorderPane>
    </bottom>
    <top>
       <MenuBar fx:id="top_toolbar" BorderPane.alignment="CENTER">
@@ -68,6 +70,8 @@
                <items>
                   <MenuItem mnemonicParsing="false" text="Rotate Clockwise" />
                   <MenuItem mnemonicParsing="false" text="Rotate Counter-clockwise" />
+                  <MenuItem mnemonicParsing="false" text="Flip Horizontally" />
+                  <MenuItem mnemonicParsing="false" text="Flip Vertically" />
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="Tools">

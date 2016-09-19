@@ -8,12 +8,14 @@ package photonicimageviewer;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
@@ -24,7 +26,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -47,6 +48,7 @@ public class MainUIController implements Initializable {
     
     private static double minimumScale = 0.5;
     private boolean isUIDisabled = true;
+    private ArrayList<MenuItem> disableableItems = new ArrayList<>();
     
     
     @FXML private Label file_name_label;
@@ -54,7 +56,7 @@ public class MainUIController implements Initializable {
     @FXML private ImageView prev_button;
     @FXML private ConvenientImageView main_imageview;
     @FXML private BorderPane main_container;
-    @FXML private AnchorPane bottom_toolbar;
+    @FXML private BorderPane bottom_toolbar;
     @FXML private MenuBar top_toolbar;
     @FXML private ImageButton right_arrow;
     @FXML private ImageButton left_arrow;
@@ -77,7 +79,8 @@ public class MainUIController implements Initializable {
      * Initializes the main container and sets its event handlers.
      */
     private void initMainContainer(){
-        //TODO: Documentation
+        //TODO: Documentation=
+        
         main_container.setOnMouseClicked(new EventHandler<MouseEvent>(){
             public void handle(MouseEvent e){
                 if (isUIDisabled) return;
@@ -182,7 +185,6 @@ public class MainUIController implements Initializable {
                 if (label.equalsIgnoreCase("Open")){
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
-                            //TODO: Implement file browser;
                             PhotonicImageViewer.getInstance().openFileChooser();
                         }
                     });
@@ -195,20 +197,40 @@ public class MainUIController implements Initializable {
                     });
                 }
                 else if (label.equalsIgnoreCase("Rotate Clockwise")){
+                    disableableItems.add(item);
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
-                            //TODO: Fix issues with rotation and margins
                             main_imageview.rotate(true);
                             resetImageView();
                         }
                     });
                 }
                 else if (label.equalsIgnoreCase("Rotate Counter-clockwise")){
+                    disableableItems.add(item);
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
-                            //TODO: Fix issues with rotation and margins
                             main_imageview.rotate(false);
                             resetImageView();
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Flip Horizontally")){
+                    disableableItems.add(item);
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                            if (main_imageview.getRotate() % 180 == 0)
+                                main_imageview.flipHorizontally();
+                            else main_imageview.flipVertically();
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Flip Vertically")){
+                    disableableItems.add(item);
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                            if (main_imageview.getRotate() % 180 == 0)
+                                main_imageview.flipVertically();
+                            else main_imageview.flipHorizontally();
                         }
                     });
                 }
@@ -264,6 +286,7 @@ public class MainUIController implements Initializable {
         next_button.setDisable(true);
         prev_button.setDisable(true);
         file_name_label.setText("");
+        for (MenuItem i : disableableItems) i.setDisable(true);
     }
     
     /**
@@ -273,6 +296,7 @@ public class MainUIController implements Initializable {
         isUIDisabled = false;
         next_button.setDisable(false);
         prev_button.setDisable(false);
+        for (MenuItem i : disableableItems) i.setDisable(false);
     }
     
     /**
@@ -293,17 +317,64 @@ public class MainUIController implements Initializable {
         }
         main_imageview.setImage(image);
         file_name_label.setText(treader.getImageName());
+        
+        //Read EXIF data
+        switch (treader.getImageOrientation()){
+            case 1:
+                main_imageview.setRotate(0);
+                main_imageview.setScaleX(1);
+                main_imageview.setScaleY(1);
+                break;
+            case 2:
+                main_imageview.setRotate(0);
+                main_imageview.setScaleX(-1);
+                main_imageview.setScaleY(1);
+                break;
+            case 3:
+                main_imageview.setRotate(180);
+                main_imageview.setScaleX(1);
+                main_imageview.setScaleY(1);
+                break;
+            case 4:
+                main_imageview.setRotate(0);
+                main_imageview.setScaleX(1);
+                main_imageview.setScaleY(-1);
+                break;
+            case 5:
+                main_imageview.setRotate(270);
+                main_imageview.setScaleX(-1);
+                main_imageview.setScaleY(1);
+                break;
+            case 6:
+                main_imageview.setRotate(90);
+                main_imageview.setScaleX(1);
+                main_imageview.setScaleY(1);
+                break;
+            case 7:
+                main_imageview.setRotate(90);
+                main_imageview.setScaleX(-1);
+                main_imageview.setScaleY(1);
+                break;
+            case 8:
+                main_imageview.setRotate(270);
+                main_imageview.setScaleX(1);
+                main_imageview.setScaleY(1);
+                break;
+        }
         resetImageView();
-        main_imageview.setRotate(0);
     }
         
-        
+    /**
+     * Centers the ImageView and correctly scales it to the window size.
+     */
     public void resetImageView(){
         //TODO: Test different image sizes and extreme cases for errors.
         //TODO: Rotate image based on EXIF data
         //(search for metadata-extractor lib)
-        main_imageview.setScaleX(INITIAL_SCALE);
-        main_imageview.setScaleY(INITIAL_SCALE);
+        main_imageview.setScaleX(INITIAL_SCALE *
+                (main_imageview.getScaleX() > 0? 1 : -1));
+        main_imageview.setScaleY(INITIAL_SCALE
+                * (main_imageview.getScaleY() > 0? 1 : -1));
         main_imageview.setTranslateX(0);
         main_imageview.setTranslateY(0);
         main_imageview.setFitWidth(200);
@@ -311,6 +382,7 @@ public class MainUIController implements Initializable {
 
         Scene scene = main_container.getScene();
         
+        // Get width of available space for the ImageView.
         double centerWidth =  0;
         if (scene != null)
             centerWidth += main_container.getWidth();
@@ -327,7 +399,7 @@ public class MainUIController implements Initializable {
 
         centerWidth -= IMAGE_MARGIN * 2;
 
-        
+        // Get height of available space for the ImageView.
         double centerHeight =  0;
         if (scene != null)
             centerHeight += main_container.getHeight();
@@ -344,6 +416,7 @@ public class MainUIController implements Initializable {
 
         centerHeight -= IMAGE_MARGIN * 2;
         
+        // Fill ImageView to available space.
         double newScale;
         if(centerWidth/centerHeight 
                 > main_imageview.getActualWidth()
@@ -353,8 +426,50 @@ public class MainUIController implements Initializable {
         else{
             newScale = centerWidth/main_imageview.getActualWidth();
         }
-        main_imageview.setScaleX(newScale);
-        main_imageview.setScaleY(newScale); 
+        main_imageview.setScaleX(newScale * main_imageview.getScaleX());
+        main_imageview.setScaleY(newScale * main_imageview.getScaleY()); 
+    }
+    
+    /**
+     * Overwrites the image's EXIF data with the current orientation displayed.
+     * DOES NOT WORK.
+     */
+    private void saveImageOrientation(){
+        int orientation;
+        boolean isHorizontallyFlipped = main_imageview.getScaleX() < 0;
+        boolean isVerticallyFlipped = main_imageview.getScaleY() < 0;
+        double rotation = main_imageview.getRotate();
+        
+        // Make sure 0 <= rotation < 360
+        while(rotation >= 360) rotation -= 360;
+        while(rotation < 0) rotation += 360;
+        
+        if (rotation == 0){
+            if (isHorizontallyFlipped && isVerticallyFlipped) orientation = 3;
+            else if (isHorizontallyFlipped) orientation = 2;
+            else if(isVerticallyFlipped) orientation = 4;
+            else orientation = 1;
+        }
+        else if (rotation == 90){
+            if (isHorizontallyFlipped && isVerticallyFlipped) orientation = 8;
+            else if (isHorizontallyFlipped) orientation = 7;
+            else if(isVerticallyFlipped) orientation = 5;
+            else orientation = 6;
+        }
+        else if (rotation == 180){
+            if (isHorizontallyFlipped && isVerticallyFlipped) orientation = 1;
+            else if (isHorizontallyFlipped) orientation = 4;
+            else if(isVerticallyFlipped) orientation = 2;
+            else orientation = 3;
+        }
+        else{ //rotation == 270
+            if (isHorizontallyFlipped && isVerticallyFlipped) orientation = 6;
+            else if (isHorizontallyFlipped) orientation = 5;
+            else if(isVerticallyFlipped) orientation = 7;
+            else orientation = 8;
+        }
+        
+        //getTreader().setImageOrientation(orientation);
     }
     
     /**
@@ -365,10 +480,11 @@ public class MainUIController implements Initializable {
      * false if zoom OUT (decrease scale). 
      */
     public void zoom(double pointX, double pointY, boolean in){
-        double newScale = main_imageview.getScaleX() 
+        double newScale = Math.abs(main_imageview.getScaleX())
                 + ZOOM_AMOUNT * (in ? 1 : -1);
         
-        if (newScale >= minimumScale || newScale > main_imageview.getScaleX()){
+        if (newScale >= minimumScale 
+                || newScale > Math.abs(main_imageview.getScaleX())){
             double oldWidth =  main_imageview.getActualWidth();
             double oldHeight =  main_imageview.getActualHeight();
             
@@ -388,8 +504,10 @@ public class MainUIController implements Initializable {
             double mY = Y / oldHeight;
 
             // Zoom
-            main_imageview.setScaleX(newScale);
-            main_imageview.setScaleY(newScale);
+            main_imageview.setScaleX(newScale * 
+                    (main_imageview.getScaleX() > 0? 1 : -1));
+            main_imageview.setScaleY(newScale *
+                    (main_imageview.getScaleY() > 0? 1 : -1));
 
             double newWidth = main_imageview.getActualWidth();
             double newHeight = main_imageview.getActualHeight();
