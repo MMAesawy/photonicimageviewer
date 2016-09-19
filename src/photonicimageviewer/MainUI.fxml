@@ -66,18 +66,18 @@
                   <MenuItem mnemonicParsing="false" text="Exit" />
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Edit">
+            <Menu mnemonicParsing="false" text="View">
                <items>
                   <MenuItem mnemonicParsing="false" text="Rotate Clockwise" />
                   <MenuItem mnemonicParsing="false" text="Rotate Counter-clockwise" />
+                  <javafx.scene.control.SeparatorMenuItem />
                   <MenuItem mnemonicParsing="false" text="Flip Horizontally" />
-                  <MenuItem mnemonicParsing="false" text="Flip Vertically" />
+                  <MenuItem mnemonicParsing="false" text="Flip Vertically" /> 
                </items>
             </Menu>
-            <Menu mnemonicParsing="false" text="Tools">
-               <items>
-                  <MenuItem mnemonicParsing="false" text="Options" />
-               </items>
+            <Menu mnemonicParsing="false" text="Options">
+                <javafx.scene.control.CheckMenuItem fx:id="wrap_check" mnemonicParsing="false" selected="true" text="Wrap Image Directory"/>
+                <javafx.scene.control.CheckMenuItem fx:id="exif_check" mnemonicParsing="false" selected="true"  text="Read EXIF Data" /> 
             </Menu>
             <Menu mnemonicParsing="false" text="Help">
                <items>

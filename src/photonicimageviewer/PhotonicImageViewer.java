@@ -6,6 +6,9 @@
 package photonicimageviewer;
 
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
@@ -25,6 +28,8 @@ public class PhotonicImageViewer extends Application {
     public final static double WINDOW_WIDTH = 640;
     public final static double WINDOW_HEIGHT = WINDOW_WIDTH * 3 / 4;
     private MainUIController mainUI;
+    private boolean readEXIF = true;
+    private boolean wrapDirectory = true;
     
     public final static String NULL_ERROR_MSG = "Error loading image(s)."
                     + "\nThe program did not find a file"
@@ -47,11 +52,8 @@ public class PhotonicImageViewer extends Application {
         
         Parent root = loader.load();
         mainUI = loader.getController();
-       
-        
+               
         Scene scene = new Scene(root);
-        
-        
         
         stage.setScene(scene);
         stage.setMinWidth(WINDOW_WIDTH);
@@ -117,6 +119,11 @@ public class PhotonicImageViewer extends Application {
         launch(args);
     }
     
+    @Override
+    public void init(){
+        readConfig();
+    }
+    
     /**
      * Displays an error message to the user flush with the UI.
      * @param msg The error message to display.
@@ -133,6 +140,7 @@ public class PhotonicImageViewer extends Application {
     public void open(String[] filePaths){
         try{
             treader = new ImageTreader(filePaths);
+            treader.setIsWrap(wrapDirectory);
         }
         catch(NullPointerException e){
             displayError(NULL_ERROR_MSG);
@@ -158,6 +166,7 @@ public class PhotonicImageViewer extends Application {
     public void open(File[] files){
         try{
             treader = new ImageTreader(files);
+            treader.setIsWrap(wrapDirectory);
         }
         catch(NullPointerException e){
             displayError(NULL_ERROR_MSG);
@@ -176,6 +185,72 @@ public class PhotonicImageViewer extends Application {
     }
     
     public ImageTreader getMainAppTreader(){ return treader; }
+    
+    public boolean getIsWrap(){
+        return wrapDirectory;
+    }
+    public void setIsWrap(boolean i){
+        wrapDirectory = i;
+        writeConfig();
+    }
+    
+    public boolean getIsReadEXIF(){
+        return readEXIF;
+    }
+    public void setIsReadEXIF(boolean i){
+        readEXIF = i;
+        writeConfig();
+    }
+    
+    private void writeConfig(){
+        File config = new File("config.ini");
+        
+        try(FileWriter writer = new FileWriter(config, false)){
+            writer.write("wrapDirectory = " + wrapDirectory + ";\n");
+            writer.write("readEXIF = " + readEXIF + ";");
+        }
+        catch(IOException e){
+            e.printStackTrace();
+        }
+    }
+    
+    private void readConfig(){
+        File config = new File("config.ini");
+        wrapDirectory = true;
+        readEXIF = true;
+        String configLine = "";
+        if (config.exists()){
+            System.out.println(1);
+            try(FileReader reader = new FileReader(config)){
+                int i;
+                do{
+                    i = reader.read();
+                    if (i != -1) configLine += ((char) i);
+                    if ((char) i == ';'){
+                        if (configLine.contains("wrapDirectory")){
+                            if (configLine.contains("true"))
+                                wrapDirectory = true;
+                            else if (configLine.contains("false"))
+                                wrapDirectory = false;
+                            System.out.println(configLine);
+                        }
+                        else if (configLine.contains("readEXIF")){
+                            if (configLine.contains("true"))
+                                readEXIF = true;
+                            else if (configLine.contains("false"))
+                                readEXIF = false;
+                            System.out.println(configLine);
+                        }
+                        configLine = "";
+                    }
+                } while (i != -1);
+            }
+            catch(IOException e){
+                e.printStackTrace();
+            }
+        }
+        else writeConfig();
+    }
    
     
 }

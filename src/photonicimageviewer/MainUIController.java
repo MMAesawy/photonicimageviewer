@@ -15,14 +15,16 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Label;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -61,6 +63,8 @@ public class MainUIController implements Initializable {
     @FXML private ImageButton right_arrow;
     @FXML private ImageButton left_arrow;
     @FXML private Label error_label;
+    @FXML private CheckMenuItem wrap_check;
+    @FXML private CheckMenuItem exif_check;
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -70,7 +74,10 @@ public class MainUIController implements Initializable {
         initArrows();
         initCircleButtons();
         initTopToolbar();
-        
+        wrap_check.setSelected(
+                PhotonicImageViewer.getInstance().getIsWrap());
+        exif_check.setSelected(
+                PhotonicImageViewer.getInstance().getIsReadEXIF());
         disableUI();
        
     }
@@ -121,13 +128,17 @@ public class MainUIController implements Initializable {
                     if (e.getSceneX() > main_container.getWidth() *
                             NEXT_PREV_REGION_DIVIDER_RATIO){
                         //Activate right arrow.
-                        right_arrow.setActive(true);
+                        if (wrap_check.isSelected() 
+                                || !getTreader().isIndexAtEndArrayEdge())
+                            right_arrow.setActive(true);
                         left_arrow.setActive(false);
                     }
                     else{
                         //Activate left arrow.
+                        if (wrap_check.isSelected() 
+                                || !getTreader().isIndexAtStartArrayEdge())
+                            left_arrow.setActive(true);
                         right_arrow.setActive(false);
-                        left_arrow.setActive(true);
                     }
                 }
                 else{
@@ -181,8 +192,11 @@ public class MainUIController implements Initializable {
             Menu menu = top_toolbar.getMenus().get(i);
             for (int j = 0; j < menu.getItems().size(); j++){
                 MenuItem item = menu.getItems().get(j);
+                if (item instanceof SeparatorMenuItem) continue;
                 String label = item.getText();
                 if (label.equalsIgnoreCase("Open")){
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Ctrl+O"));
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             PhotonicImageViewer.getInstance().openFileChooser();
@@ -190,6 +204,8 @@ public class MainUIController implements Initializable {
                     });
                 }
                 else if (label.equalsIgnoreCase("Exit")){
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Alt+F4"));
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             Platform.exit();
@@ -198,6 +214,8 @@ public class MainUIController implements Initializable {
                 }
                 else if (label.equalsIgnoreCase("Rotate Clockwise")){
                     disableableItems.add(item);
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Ctrl+Shift+Right"));
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             main_imageview.rotate(true);
@@ -206,6 +224,8 @@ public class MainUIController implements Initializable {
                     });
                 }
                 else if (label.equalsIgnoreCase("Rotate Counter-clockwise")){
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Ctrl+Shift+Left"));
                     disableableItems.add(item);
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
@@ -216,6 +236,8 @@ public class MainUIController implements Initializable {
                 }
                 else if (label.equalsIgnoreCase("Flip Horizontally")){
                     disableableItems.add(item);
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Shift+Right"));
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             if (main_imageview.getRotate() % 180 == 0)
@@ -226,6 +248,8 @@ public class MainUIController implements Initializable {
                 }
                 else if (label.equalsIgnoreCase("Flip Vertically")){
                     disableableItems.add(item);
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Shift+Up"));
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             if (main_imageview.getRotate() % 180 == 0)
@@ -241,10 +265,19 @@ public class MainUIController implements Initializable {
                         }
                     });
                 }
-                else if (label.equalsIgnoreCase("Options")){
+                else if (label.equalsIgnoreCase("Wrap image directory")){
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
-                            //TODO: Implement options window
+                            PhotonicImageViewer.getInstance().
+                                    setIsWrap(wrap_check.isSelected());
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Read EXIF data")){
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                            PhotonicImageViewer.getInstance().
+                                    setIsReadEXIF(exif_check.isSelected());
                         }
                     });
                 }
@@ -319,47 +352,54 @@ public class MainUIController implements Initializable {
         file_name_label.setText(treader.getImageName());
         
         //Read EXIF data
-        switch (treader.getImageOrientation()){
-            case 1:
-                main_imageview.setRotate(0);
-                main_imageview.setScaleX(1);
-                main_imageview.setScaleY(1);
-                break;
-            case 2:
-                main_imageview.setRotate(0);
-                main_imageview.setScaleX(-1);
-                main_imageview.setScaleY(1);
-                break;
-            case 3:
-                main_imageview.setRotate(180);
-                main_imageview.setScaleX(1);
-                main_imageview.setScaleY(1);
-                break;
-            case 4:
-                main_imageview.setRotate(0);
-                main_imageview.setScaleX(1);
-                main_imageview.setScaleY(-1);
-                break;
-            case 5:
-                main_imageview.setRotate(270);
-                main_imageview.setScaleX(-1);
-                main_imageview.setScaleY(1);
-                break;
-            case 6:
-                main_imageview.setRotate(90);
-                main_imageview.setScaleX(1);
-                main_imageview.setScaleY(1);
-                break;
-            case 7:
-                main_imageview.setRotate(90);
-                main_imageview.setScaleX(-1);
-                main_imageview.setScaleY(1);
-                break;
-            case 8:
-                main_imageview.setRotate(270);
-                main_imageview.setScaleX(1);
-                main_imageview.setScaleY(1);
-                break;
+        if (exif_check.isSelected()){
+            switch (treader.getImageOrientation()){
+                case 1:
+                    main_imageview.setRotate(0);
+                    main_imageview.setScaleX(1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 2:
+                    main_imageview.setRotate(0);
+                    main_imageview.setScaleX(-1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 3:
+                    main_imageview.setRotate(180);
+                    main_imageview.setScaleX(1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 4:
+                    main_imageview.setRotate(0);
+                    main_imageview.setScaleX(1);
+                    main_imageview.setScaleY(-1);
+                    break;
+                case 5:
+                    main_imageview.setRotate(270);
+                    main_imageview.setScaleX(-1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 6:
+                    main_imageview.setRotate(90);
+                    main_imageview.setScaleX(1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 7:
+                    main_imageview.setRotate(90);
+                    main_imageview.setScaleX(-1);
+                    main_imageview.setScaleY(1);
+                    break;
+                case 8:
+                    main_imageview.setRotate(270);
+                    main_imageview.setScaleX(1);
+                    main_imageview.setScaleY(1);
+                    break;
+            }
+        }
+        else{
+            main_imageview.setRotate(0);
+            main_imageview.setScaleX(1);
+            main_imageview.setScaleY(1);
         }
         resetImageView();
     }

@@ -154,10 +154,19 @@ public class ImageTreader{
     }
     
     /**
-     * @return Whether or not the treader is at the edge of the directory. 
+     * @return Whether or not the treader is at the starting edge
+     * of the directory. 
      */
-    public boolean isIndexAtArrayEdge(){
-        return (treadIndex == 0 || treadIndex == imageList.length - 1);
+    public boolean isIndexAtStartArrayEdge(){
+        return (treadIndex == 0);
+    }
+    
+    /**
+     * @return Whether or not the treader is at the ending edge
+     * of the directory. 
+     */
+    public boolean isIndexAtEndArrayEdge(){
+        return (treadIndex == imageList.length - 1);
     }
     
     /**
