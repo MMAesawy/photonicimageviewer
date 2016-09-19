@@ -15,28 +15,36 @@ import java.io.FilenameFilter;
  */
 public class ExtensionFilter implements FilenameFilter {
     
-    public final static String[] supportedFileExtensions = {".jpg", ".png"};
+    public final static FileExtension[] SUPPORTED_FILE_EXTENSIONS = 
+        {new FileExtension("JPG/JPEG", ".jpg", ".jpeg"),
+        new FileExtension("PNG", ".png"),
+        new FileExtension("TIF/TIFF", ".tif", ".tiff"),
+        new FileExtension("GIF", ".gif"),
+        new FileExtension("BMP", ".bmp"),
+        new FileExtension("BPG", ".bpg"),
+        new FileExtension("PPM/PGM/PBM/PNM", ".ppm", ".pgm", ".pbm", ".pnm"),
+        new FileExtension("WebP", ".webp")};
     
     /**
-     * Will only accept files which end in the extensions defined in the supportedFileExtensions array.
+     * Will only accept files which end in the extensions defined
+     * in the supportedFileExtensions array.
      * @param dir The directory of the file.
      * @param name The name of the file.
      * @return 
      */
     @Override
     public boolean accept(File dir, String name){
-        int extensionIndex = name.lastIndexOf('.');
-        if (extensionIndex == -1) return false;
-        String extension = name.substring(extensionIndex);
-        for (String i : supportedFileExtensions)
-            if (extension.equalsIgnoreCase(i)) return true;
+        
+        for (FileExtension i : SUPPORTED_FILE_EXTENSIONS){
+            if (i.isMatch(name)) return true;
+        }
         return false;
     }
     
     
     /**
-     * Takes in an array of files and returns a filtered array using this class's
-     * accept() function.
+     * Takes in an array of files and returns a filtered array using this
+     * class's accept() function.
      * @param files files to be filtered
      * @return filtered files
      */

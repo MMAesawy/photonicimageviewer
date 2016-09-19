@@ -46,6 +46,7 @@ public class MainUIController implements Initializable {
     private static final double CIRCLE_BUTTON_INACTIVE_ALPHA = 0.70;
     
     private static double minimumScale = 0.5;
+    private boolean isUIDisabled = true;
     
     
     @FXML private Label file_name_label;
@@ -59,16 +60,95 @@ public class MainUIController implements Initializable {
     @FXML private ImageButton left_arrow;
     @FXML private Label error_label;
     
-    public void afterShowInitialize(){
-        loadImage();
-        resetImageView();
-    }
-    
-    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         //TODO: Refactor node names to camel case
+        initMainImageView();
+        initMainContainer();
+        initArrows();
+        initCircleButtons();
+        initTopToolbar();
         
+        disableUI();
+       
+    }
+    
+    /**
+     * Initializes the main container and sets its event handlers.
+     */
+    private void initMainContainer(){
+        //TODO: Documentation
+        main_container.setOnMouseClicked(new EventHandler<MouseEvent>(){
+            public void handle(MouseEvent e){
+                if (isUIDisabled) return;
+                if (!e.isStillSincePress()) return;
+                
+                if (e.getButton() == MouseButton.MIDDLE){
+                    resetImageView();
+                }
+                else if (right_arrow.isActive()){
+                    next();
+                }
+                else if(left_arrow.isActive()){
+                    prev();
+                }
+                
+            }
+        });        
+        main_container.setOnMouseMoved(new EventHandler<MouseEvent>(){
+            public void handle(MouseEvent e){
+                if (isUIDisabled) return;
+                
+                // Top bound of the center of the BorderPane.
+                double topBound 
+                        = main_container.getTop()
+                                .getBoundsInParent().getHeight();
+                
+                // Bottom bound of teh center of the BorderPane.
+                double bottomBound
+                        = main_container.getBottom()
+                                .getLayoutY();
+                
+                // Y value of the mouse pointer.
+                double y = e.getSceneY();
+                
+                // If Y is between the top bound and the bottom bound:
+                if (y > topBound && y < bottomBound){
+                    // If X is on the right side of the window.
+                    if (e.getSceneX() > main_container.getWidth() *
+                            NEXT_PREV_REGION_DIVIDER_RATIO){
+                        //Activate right arrow.
+                        right_arrow.setActive(true);
+                        left_arrow.setActive(false);
+                    }
+                    else{
+                        //Activate left arrow.
+                        right_arrow.setActive(false);
+                        left_arrow.setActive(true);
+                    }
+                }
+                else{
+                    //Deactivate both arrows.
+                    right_arrow.setActive(false);
+                    left_arrow.setActive(false);
+                }     
+            }
+        });
+        main_container.setOnMouseExited(new EventHandler<MouseEvent>(){
+            public void handle(MouseEvent e){
+                if (isUIDisabled) return;
+                //Deactivate both arrows when mouse pointer is outside
+                //the app window.
+                right_arrow.setActive(false);
+                left_arrow.setActive(false);
+            }
+        });
+    }
+    
+    /**
+     * Initializes the main ImageView and sets its event handlers.
+     */
+    private void initMainImageView(){
         main_imageview.setPreserveRatio(true);
         main_imageview.setOnScroll(new EventHandler<ScrollEvent>(){
            @Override
@@ -88,65 +168,12 @@ public class MainUIController implements Initializable {
                 dragHandler.reset();
             }
         });
-        
-        initArrows();
-        loadImage();
-        resetImageView();
-        
-        //TODO: Documentation
-        main_container.setOnMouseClicked(new EventHandler<MouseEvent>(){
-            public void handle(MouseEvent e){
-                if (!e.isStillSincePress()) return;
-                if (e.getButton() == MouseButton.MIDDLE){
-                    resetImageView();
-                }
-                else if (right_arrow.isActive()){
-                    next();
-                }
-                else if(left_arrow.isActive()){
-                    prev();
-                }
-                
-            }
-        });        
-        main_container.setOnMouseMoved(new EventHandler<MouseEvent>(){
-            public void handle(MouseEvent e){
-                double topBound 
-                        = main_container.getTop()
-                                .getBoundsInParent().getHeight();
-                
-                double bottomBound
-                        = main_container.getBottom()
-                                .getLayoutY();
-                
-                double y = e.getSceneY();
-                
-                if (y > topBound && y < bottomBound){
-                    if (e.getSceneX() > main_container.getWidth() *
-                            NEXT_PREV_REGION_DIVIDER_RATIO){
-                        right_arrow.setActive(true);
-                        left_arrow.setActive(false);
-                    }
-                    else{
-                        right_arrow.setActive(false);
-                        left_arrow.setActive(true);
-                    }
-                }
-                else{
-                    right_arrow.setActive(false);
-                    left_arrow.setActive(false);
-                }     
-            }
-        });
-        main_container.setOnMouseExited(new EventHandler<MouseEvent>(){
-            public void handle(MouseEvent e){
-                right_arrow.setActive(false);
-                left_arrow.setActive(false);
-            }
-        });
-        
-        initCircleButtons();
-        
+    }
+    
+    /**
+     * Initializes the top MenuBar and sets its item's event handlers.
+     */
+    private void initTopToolbar(){
         for (int i = 0; i < top_toolbar.getMenus().size(); i++){
             Menu menu = top_toolbar.getMenus().get(i);
             for (int j = 0; j < menu.getItems().size(); j++){
@@ -156,6 +183,7 @@ public class MainUIController implements Initializable {
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
                             //TODO: Implement file browser;
+                            PhotonicImageViewer.getInstance().openFileChooser();
                         }
                     });
                 }
@@ -211,7 +239,8 @@ public class MainUIController implements Initializable {
         error_label.setDisable(false);
         error_label.setOpacity(1);
         error_label.setText(msg);
-        main_imageview.setImage(null);
+        disableUI();
+        
     }
     
     /**
@@ -221,14 +250,35 @@ public class MainUIController implements Initializable {
         error_label.setText("");
         error_label.setDisable(true);
         error_label.setOpacity(0);
+        enableUI();
     }
     
     /**
-        Sets the image of the main ImageView using the file path passed as
-        a parameter. Also updates the file name label.
-        @param filePath The path of the image file to be loaded.
+     * Disables essential UI elements such as the next and previous buttons.
+     */
+    private void disableUI(){
+        isUIDisabled = true;
+        main_imageview.setImage(null);
+        right_arrow.setActive(false);
+        left_arrow.setActive(false);
+        next_button.setDisable(true);
+        prev_button.setDisable(true);
+        file_name_label.setText("");
+    }
+    
+    /**
+     * Enables essential UI elements such as the next and previous buttons.
+     */
+    private void enableUI(){
+        isUIDisabled = false;
+        next_button.setDisable(false);
+        prev_button.setDisable(false);
+    }
+    
+    /**
+        Loads the image file associated with the application's image treader.
     */
-    private void loadImage(){
+    public void loadImage(){
         resetError();
         ImageTreader treader = getTreader();
         Image image = null;
@@ -243,11 +293,12 @@ public class MainUIController implements Initializable {
         }
         main_imageview.setImage(image);
         file_name_label.setText(treader.getImageName());
+        resetImageView();
         main_imageview.setRotate(0);
     }
         
         
-    private void resetImageView(){
+    public void resetImageView(){
         //TODO: Test different image sizes and extreme cases for errors.
         //TODO: Rotate image based on EXIF data
         //(search for metadata-extractor lib)
@@ -313,7 +364,7 @@ public class MainUIController implements Initializable {
      * @param in True if zoom IN (increase scale),
      * false if zoom OUT (decrease scale). 
      */
-    private void zoom(double pointX, double pointY, boolean in){
+    public void zoom(double pointX, double pointY, boolean in){
         double newScale = main_imageview.getScaleX() 
                 + ZOOM_AMOUNT * (in ? 1 : -1);
         
@@ -412,7 +463,7 @@ public class MainUIController implements Initializable {
             main_imageview.offsetY(offsetY);
         }
     }  
-    private void zoom(boolean in){
+    public void zoom(boolean in){
         zoom(main_imageview.getActualWidth() / 2,
                 main_imageview.getActualHeight() / 2, in);
     }
@@ -500,19 +551,17 @@ public class MainUIController implements Initializable {
     /**
      * Loads the next image and resets the ImageView.
      */
-    private void next(){
+    public void next(){
         getTreader().next();
         loadImage();
-        resetImageView();
     }
     
     /**
      * Loads the previous image and resets the ImageView.
      */
-    private void prev(){
+    public void prev(){
         getTreader().prev();
         loadImage();
-        resetImageView();
     }
     
     private ImageTreader getTreader(){

@@ -11,7 +11,8 @@ import java.io.IOException;
 import javafx.scene.image.Image;
 
 /**
- * The class functions as a getter for all the image files a particular directory.
+ * The class functions as a getter for all the image files in
+ * a particular directory.
  * @author MMAesawy
  */
 public class ImageTreader{
@@ -29,38 +30,76 @@ public class ImageTreader{
      * ImageTreader.
      * @param paths Array of file paths to be used by this ImageTreader.
      */
-    public ImageTreader(String[] paths){
+    public ImageTreader(String[] paths) throws IncompatibleFileException{
+        //Convert paths to files.
+        File[] files = new File[paths.length];
+        for (int i = 0; i < paths.length; i++)
+            files[i] = new File(paths[i]);
+        
+        initTreader(files);
+    }
+    
+    /**
+     * Creates a new ImageTreader using the specified file(s).
+     * If the parameter contains only one entry, then the ImageTreader will
+     * use and process all the image files in entry's directory.
+     * If there are multiple entries in the parameter, the ImageTreader will
+     * only use the files specified.
+     * Using an empty array as a parameter will most likely yield a broken
+     * ImageTreader.
+     * @param files Array of files to be used by this ImageTreader.
+     */
+    public ImageTreader(File[] files) throws IncompatibleFileException{
+        initTreader(files);
+    }
+    
+    /**
+     * Initializes the treader.
+     * If the parameter contains only one entry, then the ImageTreader will
+     * use and process all the image files in entry's directory.
+     * If there are multiple entries in the parameter, the ImageTreader will
+     * only use the files specified.
+     * Using an empty array as a parameter will most likely yield a broken
+     * ImageTreader.
+     * @param files The files to be processed by this ImageTreader. 
+     */
+    private void initTreader(File[] files) throws IncompatibleFileException{
         // In case array is empty.
-        if (paths.length == 0){
+        if (files.length == 0){
             imageList = new File[0];
             return;
         }
         
-        if (paths.length == 1){
-            File file = new File(paths[0]);
+        if (files.length == 1){
             File homeDirectory;
 
-            if (file.isDirectory())
-                homeDirectory = file; //Retrieve path of directory of file
-            else homeDirectory = file.getParentFile(); //startFilePath is a directory; do nothing
+            if (files[0].isDirectory())
+                homeDirectory = files[0]; //Retrieve path of directory of file
+            else
+                //startFilePath is a dir 
+                homeDirectory = files[0].getParentFile(); 
+            ExtensionFilter filter = new ExtensionFilter();
+            if (filter.accept(files[0], files[0].getName()))
+                // Create list containing all supported image files in the dir
+                imageList = homeDirectory.listFiles(filter); 
+            else{
+                throw new IncompatibleFileException();
+            }
             
-            imageList = homeDirectory.listFiles(new ExtensionFilter()); // Create list containing all supported image files in the directory
+            // Set current array index to the original file in parameter.
+            for (int i = 0; i < imageList.length; i++) 
+                if (imageList[i].equals(files[0])){
+                    treadIndex = i;
+                    break;
+                }
         }
         else{
-            // Get file array of specified files
-            File[] fileArray = new File[paths.length];
-            for (int i = 0; i < paths.length; i++)
-                fileArray[i] = new File(paths[i]);
-            
             // Filter the files (weed out incompatibles)
-            imageList = new ExtensionFilter().filterArray(fileArray);
+            imageList = new ExtensionFilter().filterArray(files);
+            treadIndex = 0;
         }
         
-        for (int i = 0; i < imageList.length; i++) // Set current array index to the original file in parameter.
-            if (imageList[i].getAbsolutePath().equals(paths[0])){
-                treadIndex = i;
-                break;
-            }
+        
     }
         
     /**
@@ -82,6 +121,14 @@ public class ImageTreader{
         image = new Image(new FileInputStream(imageList[treadIndex]));
         
         return image;
+    }
+    
+    /**
+     * Gets the current image file.
+     */
+    public File getImageFile(){
+        if (imageList.length == 0) return null; 
+        return imageList[treadIndex];
     }
     
     /**
