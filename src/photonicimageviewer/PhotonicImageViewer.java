@@ -6,6 +6,8 @@
 package photonicimageviewer;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,6 +17,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -25,15 +28,18 @@ import javafx.stage.Stage;
  */
 public class PhotonicImageViewer extends Application {
     private ImageTreader treader;
-    public final static double WINDOW_WIDTH = 640;
-    public final static double WINDOW_HEIGHT = WINDOW_WIDTH * 3 / 4;
     private MainUIController mainUI;
+    private Stage mainStage;
     private boolean readEXIF = true;
     private boolean wrapDirectory = true;
-    
+    private double windowWidth = 640;
+    private double windowHeight = 480;
+    private boolean isFullscreen = false;
     public final static String NULL_ERROR_MSG = "Error loading image(s)."
                     + "\nThe program did not find a file"
                     + " at the specified file path.";
+    public final static String APP_NAME = "Photonic Image Viewer";
+    public final static String ICON_PATH = "assets/photoniclogoaperture.png";
     
     /*
         Definitions for a singleton.
@@ -52,13 +58,17 @@ public class PhotonicImageViewer extends Application {
         
         Parent root = loader.load();
         mainUI = loader.getController();
-               
+        
         Scene scene = new Scene(root);
         
         stage.setScene(scene);
-        stage.setMinWidth(WINDOW_WIDTH);
-        stage.setMinHeight(WINDOW_HEIGHT);
-        
+        stage.setMinWidth(windowWidth);
+        stage.setMinHeight(windowHeight);
+        stage.setFullScreen(isFullscreen);
+        stage.setTitle(APP_NAME);
+        Image icon = loadAppIcon();
+            if (icon != null) stage.getIcons().add(icon);
+        mainStage = stage;
         stage.show();
         List<String> args = getParameters().getRaw();
         if (!args.isEmpty()) open(args.toArray(new String[0]));
@@ -66,6 +76,29 @@ public class PhotonicImageViewer extends Application {
         //open("C:\\Users\\MMAesawy\\Pictures\\pengu.jpg");
         
     }
+    
+    @Override
+    public void stop() throws Exception{
+        writeConfig();
+    }
+    
+    public Image loadAppIcon(){
+        
+        Image image = null;
+        try{
+            image = new Image(new FileInputStream(ICON_PATH));
+        }
+        catch(FileNotFoundException e){
+            e.printStackTrace();
+        }
+        
+        return image;
+    }
+    
+    public void setWindowTitle(String t){
+        mainStage.setTitle(t);
+    }
+    
     
     /**
      * Displays a file chooser to be used to select an image for the app.
@@ -207,7 +240,10 @@ public class PhotonicImageViewer extends Application {
         
         try(FileWriter writer = new FileWriter(config, false)){
             writer.write("wrapDirectory = " + wrapDirectory + ";\n");
-            writer.write("readEXIF = " + readEXIF + ";");
+            writer.write("readEXIF = " + readEXIF + ";\n");
+            writer.write("windowWidth = " + mainStage.getWidth() + ";\n");
+            writer.write("windowHeight = " + mainStage.getHeight() + ";\n");
+            writer.write("isFullscreen = " + mainStage.isFullScreen() + ";\n");
         }
         catch(IOException e){
             e.printStackTrace();
@@ -220,7 +256,6 @@ public class PhotonicImageViewer extends Application {
         readEXIF = true;
         String configLine = "";
         if (config.exists()){
-            System.out.println(1);
             try(FileReader reader = new FileReader(config)){
                 int i;
                 do{
@@ -232,14 +267,37 @@ public class PhotonicImageViewer extends Application {
                                 wrapDirectory = true;
                             else if (configLine.contains("false"))
                                 wrapDirectory = false;
-                            System.out.println(configLine);
                         }
                         else if (configLine.contains("readEXIF")){
                             if (configLine.contains("true"))
                                 readEXIF = true;
                             else if (configLine.contains("false"))
                                 readEXIF = false;
-                            System.out.println(configLine);
+                        }
+                        else if (configLine.contains("isFullscreen")){
+                            if (configLine.contains("true"))
+                                isFullscreen = true;
+                            else if (configLine.contains("false"))
+                                isFullscreen = false;
+                        }
+                        else if (configLine.contains("windowHeight")){
+                            configLine = configLine.substring(
+                                configLine.indexOf('=') + 1,
+                                    configLine.indexOf(';')).trim();
+                            try{
+                                windowHeight = Double.parseDouble(configLine);
+                            }
+                            catch(Exception e){};
+                            
+                        }
+                        else if (configLine.contains("windowWidth")){
+                            configLine = configLine.substring(
+                                configLine.indexOf('=') + 1,
+                                    configLine.indexOf(';')).trim();
+                            try{
+                                windowWidth = Double.parseDouble(configLine);
+                            }
+                            catch(Exception e){};
                         }
                         configLine = "";
                     }
@@ -249,7 +307,6 @@ public class PhotonicImageViewer extends Application {
                 e.printStackTrace();
             }
         }
-        else writeConfig();
     }
    
     

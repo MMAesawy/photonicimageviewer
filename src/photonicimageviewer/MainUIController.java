@@ -295,7 +295,8 @@ public class MainUIController implements Initializable {
         error_label.setOpacity(1);
         error_label.setText(msg);
         disableUI();
-        
+        PhotonicImageViewer.getInstance().setWindowTitle(
+                PhotonicImageViewer.APP_NAME);
     }
     
     /**
@@ -349,7 +350,9 @@ public class MainUIController implements Initializable {
                             + " \nafter the program was launched.");
         }
         main_imageview.setImage(image);
-        file_name_label.setText(treader.getImageName());
+        String filename = treader.getImageName();
+        file_name_label.setText(filename);
+        PhotonicImageViewer.getInstance().setWindowTitle(filename);
         
         //Read EXIF data
         if (exif_check.isSelected()){
@@ -427,7 +430,7 @@ public class MainUIController implements Initializable {
         if (scene != null)
             centerWidth += main_container.getWidth();
         else
-            centerWidth += PhotonicImageViewer.WINDOW_WIDTH - 20;
+            centerWidth += 640 - 20;
 
         if (main_container.getLeft() != null)
             centerWidth -= main_container.getLeft()
@@ -444,7 +447,7 @@ public class MainUIController implements Initializable {
         if (scene != null)
             centerHeight += main_container.getHeight();
         else
-            centerHeight += PhotonicImageViewer.WINDOW_HEIGHT - 60;
+            centerHeight += 480 - 60;
 
         if (main_container.getTop() != null)
             centerHeight -= main_container.getTop()
