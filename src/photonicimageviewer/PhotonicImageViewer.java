@@ -61,7 +61,7 @@ public class PhotonicImageViewer extends Application {
         
         Scene scene = new Scene(root);
         
-        stage.setScene(scene);
+        
         stage.setMinWidth(windowWidth);
         stage.setMinHeight(windowHeight);
         stage.setFullScreen(isFullscreen);
@@ -69,6 +69,8 @@ public class PhotonicImageViewer extends Application {
         Image icon = loadAppIcon();
             if (icon != null) stage.getIcons().add(icon);
         mainStage = stage;
+        
+        stage.setScene(scene);
         stage.show();
         List<String> args = getParameters().getRaw();
         if (!args.isEmpty()) open(args.toArray(new String[0]));

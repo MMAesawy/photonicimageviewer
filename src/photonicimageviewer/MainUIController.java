@@ -741,6 +741,8 @@ public class MainUIController implements Initializable {
             public void handle(MouseEvent e){
                 // Set the initial position of the mouse when the user began
                 // dragging.
+                if (!e.isPrimaryButtonDown()) return;
+                
                 if (!wasMousePressed && e.isPrimaryButtonDown()){
                     initialMouseX =
                             e.getSceneX() - main_imageview.getTranslateX();
