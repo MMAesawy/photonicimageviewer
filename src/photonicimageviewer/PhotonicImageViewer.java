@@ -5,21 +5,33 @@
  */
 package photonicimageviewer;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.events.Event;
+import org.w3c.dom.events.EventTarget;
+import org.w3c.dom.html.HTMLAnchorElement;
 
 
 /**
@@ -69,7 +81,6 @@ public class PhotonicImageViewer extends Application {
         Image icon = loadAppIcon();
             if (icon != null) stage.getIcons().add(icon);
         mainStage = stage;
-        
         stage.setScene(scene);
         stage.show();
         List<String> args = getParameters().getRaw();
@@ -82,6 +93,56 @@ public class PhotonicImageViewer extends Application {
     @Override
     public void stop() throws Exception{
         writeConfig();
+    }
+    
+    public void startAbout() throws Exception{
+        
+        
+        WebView wb = new WebView();
+        wb.getEngine().load(new File("src/photonicimageviewer/about.html")
+                .toURI().toString());
+        wb.setPrefSize(640, 400);
+        wb.getEngine().getLoadWorker().stateProperty().
+                addListener(new ChangeListener<Worker.State>() {
+        @Override
+        public void changed(ObservableValue<? extends Worker.State> observable,
+                Worker.State oldValue, Worker.State newValue) {
+            if (newValue != Worker.State.SUCCEEDED) {
+                 return;
+            }
+            Document document = wb.getEngine().getDocument();
+            NodeList nodeList = document.getElementsByTagName("a");
+            for (int i = 0; i < nodeList.getLength(); i++)
+            {
+                Node node= nodeList.item(i);
+                EventTarget eventTarget = (EventTarget) node;
+                eventTarget.addEventListener("click",
+                        new org.w3c.dom.events.EventListener()
+                {
+                    @Override
+                    public void handleEvent(Event evt)
+                    {
+                        EventTarget target = evt.getCurrentTarget();
+                        HTMLAnchorElement anchorElement
+                                = (HTMLAnchorElement) target;
+                        String href = anchorElement.getHref();
+                        try{
+                            if(Desktop.isDesktopSupported())
+                                Desktop.getDesktop().browse(new URI(href));
+                        }
+                        catch(Exception exc) { exc.printStackTrace(); }
+                        evt.preventDefault();
+                    }
+                }, false);
+            }
+            }
+        });
+        
+        Stage stage = new Stage();
+        stage.setResizable(false);
+        stage.setTitle("About");
+        stage.setScene(new Scene(wb));
+        stage.show();
     }
     
     public Image loadAppIcon(){

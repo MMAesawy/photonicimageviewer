@@ -13,6 +13,7 @@ import javafx.scene.image.ImageView;
  * @author MMAesawy
  */
 public class ConvenientImageView extends ImageView{
+    private int orientation = 1;
     
     /**
      * @return The X coordinate of the left boundary of the node relative to its parent.
@@ -110,5 +111,18 @@ public class ConvenientImageView extends ImageView{
     public void flipVertically(){
         setScaleY(-getScaleY());
     }
+    
+    /**
+     * Returns this ImageView's EXIF orientation.
+     * @return EXIF orientation.
+     */
+    public int getOrientation() { return orientation; }
+    
+    /**
+     * Sets this ImageView's EXIF orientation data. Does not alter any of the
+     * node's transformation properties.
+     * @param o The EXIF orientation.
+     */
+    public void setOrientation(int o) { orientation = o; }
     
 }

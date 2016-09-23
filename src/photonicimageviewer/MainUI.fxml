@@ -67,7 +67,11 @@
                </items>
             </Menu>
             <Menu mnemonicParsing="false" text="View">
-               <items>
+               <items> 
+                   <MenuItem mnemonicParsing="false" text="Zoom In" />
+                   <MenuItem mnemonicParsing="false" text="Zoom Out" />
+                   <MenuItem mnemonicParsing="false" text="Reset Zoom" />
+                   <javafx.scene.control.SeparatorMenuItem />
                   <MenuItem mnemonicParsing="false" text="Rotate Clockwise" />
                   <MenuItem mnemonicParsing="false" text="Rotate Counter-clockwise" />
                   <javafx.scene.control.SeparatorMenuItem />

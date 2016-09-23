@@ -36,7 +36,7 @@ import javafx.scene.layout.BorderPane;
  */
 public class MainUIController implements Initializable {
     
-    private static final double ZOOM_AMOUNT = 0.003 * 40;
+    private static final double ZOOM_AMOUNT = 0.008 * 40;
     private static final double IMAGEVIEW_TRANSLATION_PAD = 10;
     private static final double INITIAL_SCALE = 1.0;
     private static final double MINIMUM_WIDTH = 320;
@@ -261,7 +261,38 @@ public class MainUIController implements Initializable {
                 else if (label.equalsIgnoreCase("About")){
                     item.setOnAction(new EventHandler<ActionEvent>(){
                         public void handle(ActionEvent e){
-                            //TODO: About + Licenses
+                            try{
+                                PhotonicImageViewer.getInstance().startAbout();
+                            }
+                            catch(Exception exc) { exc.printStackTrace(); }
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Reset Zoom")){
+                    disableableItems.add(item);
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                            resetImageView();
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Zoom In")){
+                    disableableItems.add(item);
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Ctrl+Equals"));
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                           zoom(true);
+                        }
+                    });
+                }
+                else if (label.equalsIgnoreCase("Zoom Out")){
+                    disableableItems.add(item);
+                    item.setAccelerator(KeyCombination
+                            .keyCombination("Ctrl+Minus"));
+                    item.setOnAction(new EventHandler<ActionEvent>(){
+                        public void handle(ActionEvent e){
+                            zoom(false);
                         }
                     });
                 }
@@ -356,7 +387,8 @@ public class MainUIController implements Initializable {
         
         //Read EXIF data
         if (exif_check.isSelected()){
-            switch (treader.getImageOrientation()){
+            main_imageview.setOrientation(treader.getImageOrientation());
+            switch (main_imageview.getOrientation()){
                 case 1:
                     main_imageview.setRotate(0);
                     main_imageview.setScaleX(1);
