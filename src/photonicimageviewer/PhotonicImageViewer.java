@@ -86,10 +86,7 @@ public class PhotonicImageViewer extends Application {
         stage.setScene(scene);
         stage.show();
         List<String> args = getParameters().getRaw();
-        if (!args.isEmpty()) open(args.toArray(new String[0]));
-        //open("C:\\New folder\\DSC_0005.jpg");
-        //open("C:\\Users\\MMAesawy\\Pictures\\pengu.jpg");
-        
+        if (!args.isEmpty()) open(args.toArray(new String[0]));    
     }
     
     @Override
@@ -101,8 +98,7 @@ public class PhotonicImageViewer extends Application {
         
         
         WebView wb = new WebView();
-        wb.getEngine().load(new File("src/photonicimageviewer/about.html")
-                .toURI().toString());
+        wb.getEngine().load(new File("assets/about.html").toURI().toString());
         wb.setPrefSize(640, 400);
         wb.getEngine().getLoadWorker().stateProperty().
                 addListener(new ChangeListener<Worker.State>() {
