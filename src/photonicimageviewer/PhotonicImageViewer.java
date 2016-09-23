@@ -19,10 +19,12 @@ import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Worker;
+import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.web.WebView;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -72,7 +74,7 @@ public class PhotonicImageViewer extends Application {
         mainUI = loader.getController();
         
         Scene scene = new Scene(root);
-        
+
         
         stage.setMinWidth(windowWidth);
         stage.setMinHeight(windowHeight);

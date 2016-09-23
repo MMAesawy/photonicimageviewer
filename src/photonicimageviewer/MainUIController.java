@@ -24,7 +24,9 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -47,6 +49,7 @@ public class MainUIController implements Initializable {
     private static final double CIRCLE_BUTTON_HEIGHT = 20;
     private static final double CIRCLE_BUTTON_ACTIVE_ALPHA = 0.95;
     private static final double CIRCLE_BUTTON_INACTIVE_ALPHA = 0.70;
+    private static final double OFFSET_PERCENTAGE = 5;
     
     private static double minimumScale = 0.5;
     private boolean isUIDisabled = true;
@@ -79,7 +82,7 @@ public class MainUIController implements Initializable {
         exif_check.setSelected(
                 PhotonicImageViewer.getInstance().getIsReadEXIF());
         disableUI();
-       
+        
     }
     
     /**
@@ -368,6 +371,55 @@ public class MainUIController implements Initializable {
         Loads the image file associated with the application's image treader.
     */
     public void loadImage(){
+        main_container.getScene().setOnKeyPressed(
+                new EventHandler<KeyEvent>(){
+        public void handle (KeyEvent e){
+            if (main_imageview.getImage() == null) return;
+            switch (e.getCode()) {
+                case RIGHT:
+                    if (e.isControlDown())
+                        main_imageview.offsetX(
+                                main_imageview.getActualWidth()
+                                        * OFFSET_PERCENTAGE / 100.0);
+                    else
+                        next();
+                    break;
+                case PAGE_UP:
+                case SPACE:
+                    next();
+                    break;
+                case LEFT:
+                    if (e.isControlDown())
+                        main_imageview.offsetX(
+                                main_imageview.getActualWidth()
+                                        * OFFSET_PERCENTAGE / -100.0);
+                    else
+                        prev();
+                    break;
+                case PAGE_DOWN:
+                    prev();
+                    break;
+                case UP:
+                    if (e.isControlDown())
+                        main_imageview.offsetY(
+                                main_imageview.getActualHeight()
+                                        * OFFSET_PERCENTAGE / -100.0);
+                    else
+                        zoom(true);
+                    break;
+                case DOWN:
+                    if (e.isControlDown())
+                        main_imageview.offsetY(
+                                main_imageview.getActualHeight()
+                                        * OFFSET_PERCENTAGE / 100.0);
+                    else
+                        zoom(false);
+                    break;
+                default:
+                    break;
+                }
+          }
+        });
         resetError();
         ImageTreader treader = getTreader();
         Image image = null;
