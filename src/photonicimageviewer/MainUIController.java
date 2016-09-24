@@ -82,7 +82,7 @@ public class MainUIController implements Initializable {
         exif_check.setSelected(
                 PhotonicImageViewer.getInstance().getIsReadEXIF());
         disableUI();
-        
+         
     }
     
     /**
@@ -170,9 +170,7 @@ public class MainUIController implements Initializable {
         main_imageview.setOnScroll(new EventHandler<ScrollEvent>(){
            @Override
            public void handle(ScrollEvent e){
-               double X = e.getSceneX() - main_imageview.getLeft();
-               double Y = e.getSceneY() - main_imageview.getTop();
-               zoom(X,Y, e.getDeltaY() > 0);
+               zoom(e.getX(), e.getY(), e.getDeltaY() > 0);
            }
         });
         
@@ -616,9 +614,9 @@ public class MainUIController implements Initializable {
             double oldHeight =  main_imageview.getActualHeight();
             
             // X coordinate of the mouse pointer relative to the node
-            double X = pointX; 
+            double X = pointX * Math.abs(main_imageview.getScaleX()); 
             // Y coordinate of the mouse pointer relative to the node
-            double Y = pointY; 
+            double Y = pointY * Math.abs(main_imageview.getScaleX()); 
 
             /*
             mX & mY are the ratios between position of pointer
@@ -723,9 +721,11 @@ public class MainUIController implements Initializable {
             //TODO: Put both arrows in the same file and use viewports??
             // (sort of like a texture sheet)
             inactiveArrow = new Image(
-                    new FileInputStream("assets/boxArrowInactive.png")); 
+                    new FileInputStream(PhotonicImageViewer.ASSET_PATH +
+                            "boxArrowInactive.png")); 
             activeArrow = new Image(
-                    new FileInputStream("assets/boxArrowActive.png"));
+                    new FileInputStream(PhotonicImageViewer.ASSET_PATH +
+                            "boxArrowActive.png"));
         }
         catch (IOException e){
             System.out.println("IO Error: " + e.toString());
@@ -744,7 +744,8 @@ public class MainUIController implements Initializable {
     private void initCircleButtons(){
         Image image = null;
         try{
-            image = new Image(new FileInputStream("assets/circlebutton.png"));
+            image = new Image(new FileInputStream(
+                    PhotonicImageViewer.ASSET_PATH + "circlebutton.png"));
         }
         catch (IOException e){
             System.out.println("IO Error: " + e.toString());
@@ -865,7 +866,7 @@ public class MainUIController implements Initializable {
                 
                 boolean willBeOutOfRightBounds =
                         main_imageview.getLeft() + addedTranslationX 
-                        > main_imageview.getScene().getWidth() - IMAGE_MARGIN;
+                        > main_container.getWidth() - IMAGE_MARGIN;
                 
                 boolean willBeOutOfLeftBounds =
                         main_imageview.getRight() + addedTranslationX  
@@ -887,7 +888,7 @@ public class MainUIController implements Initializable {
                 
                 boolean willBeOutOfBottomBounds =
                         main_imageview.getTop() + addedTranslationY 
-                        > main_imageview.getScene().getHeight()
+                        > main_container.getHeight()
                         - bottom_toolbar.getHeight() - IMAGE_MARGIN;
                 
                 boolean willBeOutOfTopBounds =

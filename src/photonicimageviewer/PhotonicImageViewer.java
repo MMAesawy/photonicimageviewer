@@ -53,7 +53,8 @@ public class PhotonicImageViewer extends Application {
                     + "\nThe program did not find a file"
                     + " at the specified file path.";
     public final static String APP_NAME = "Photonic Image Viewer";
-    public final static String ICON_PATH = "assets/photoniclogoaperture.png";
+    public final static String ICON_PATH = "photoniclogoaperture.png";
+    public final static String ASSET_PATH = "./assets/";
     
     /*
         Definitions for a singleton.
@@ -98,7 +99,8 @@ public class PhotonicImageViewer extends Application {
         
         
         WebView wb = new WebView();
-        wb.getEngine().load(new File("assets/about.html").toURI().toString());
+        wb.getEngine().load(new File(PhotonicImageViewer.ASSET_PATH + 
+                "about.html").toURI().toString());
         wb.setPrefSize(640, 400);
         wb.getEngine().getLoadWorker().stateProperty().
                 addListener(new ChangeListener<Worker.State>() {
@@ -147,7 +149,7 @@ public class PhotonicImageViewer extends Application {
         
         Image image = null;
         try{
-            image = new Image(new FileInputStream(ICON_PATH));
+            image = new Image(new FileInputStream(ASSET_PATH + ICON_PATH));
         }
         catch(FileNotFoundException e){
             e.printStackTrace();
@@ -348,7 +350,7 @@ public class PhotonicImageViewer extends Application {
                             try{
                                 windowHeight = Double.parseDouble(configLine);
                             }
-                            catch(Exception e){};
+                            catch(Exception e){}
                             
                         }
                         else if (configLine.contains("windowWidth")){

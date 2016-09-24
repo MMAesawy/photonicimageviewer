@@ -16,14 +16,15 @@
 <?import photonicimageviewer.ImageButton?>
 
 
-<BorderPane fx:id="main_container" prefHeight="480.0" prefWidth="640.0" styleClass="general" stylesheets="@MainUICSS.css" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photonicimageviewer.MainUIController">
+<StackPane prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.60" xmlns:fx="http://javafx.com/fxml/1" fx:controller="photonicimageviewer.MainUIController">
+    <children>
+<BorderPane fx:id="main_container"  styleClass="general" stylesheets="@MainUICSS.css" >
     <center>
-      <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-         <children>
+      
+         
               <ConvenientImageView fx:id="main_imageview" pickOnBounds="true" preserveRatio="true" />
-            <Label fx:id="error_label" mouseTransparent="true" textAlignment="CENTER" styleClass="errorlabel" stylesheets="@MainUICSS.css" />
-         </children>
-      </StackPane>
+            
+         
    </center>
     <bottom>
       <BorderPane id="bottom_toolbar" fx:id="bottom_toolbar" styleClass="toolbar" stylesheets="@MainUICSS.css" BorderPane.alignment="CENTER">
@@ -115,3 +116,6 @@
    </right>
    
 </BorderPane>
+<Label fx:id="error_label" mouseTransparent="true" textAlignment="CENTER" styleClass="errorlabel" stylesheets="@MainUICSS.css" />
+</children>
+      </StackPane>

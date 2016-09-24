@@ -28,6 +28,7 @@ public class ConvenientImageView extends ImageView{
      */
     public double getTop(){
         return getBoundsInParent().getMinY();
+        //return getLayoutY() + getTranslateY() - getActualHeight() * 0.5 * (1 - 1 / getScaleY());
     }
     
     /**
@@ -35,6 +36,7 @@ public class ConvenientImageView extends ImageView{
      */
     public double getRight(){
         return getBoundsInParent().getMaxX();
+        //return getLeft() + getActualWidth();
     }
     
     /**
@@ -42,6 +44,7 @@ public class ConvenientImageView extends ImageView{
      */
     public double getBottom(){
         return getBoundsInParent().getMaxY();
+        //return getTop() + getActualHeight();
     }
     
     /**
