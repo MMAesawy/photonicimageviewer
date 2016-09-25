@@ -51,7 +51,7 @@
 
     -->
     <target name="-post-jfx-deploy">
-       <fx:deploy width="${javafx.run.width}" height="${javafx.run.height}" 
+       <fx:deploy verbose="true" width="${javafx.run.width}" height="${javafx.run.height}" 
                   nativeBundles="all"
                   outdir="${basedir}/${dist.dir}" outfile="${application.title}">
           <fx:application name="${application.title}" 
@@ -59,9 +59,14 @@
           <fx:resources>
               <fx:fileset dir="${basedir}/${dist.dir}"
                           includes="*.jar"/>
+              <fx:fileset dir="assets"
+                          includes="*.*"/>
+              <fx:fileset dir="${basedir}/${dist.dir}" includes="lib/*.jar"/>
           </fx:resources>
-          <fx:info title="${application.title}" 
-                   vendor="${application.vendor}"/>
+          <fx:info title="Photonic Image Viewer" 
+                   vendor="MMAesawy"
+                   license="MIT License">
+              </fx:info>
         </fx:deploy>          
      </target>
 </project>

@@ -54,7 +54,7 @@ public class PhotonicImageViewer extends Application {
                     + " at the specified file path.";
     public final static String APP_NAME = "Photonic Image Viewer";
     public final static String ICON_PATH = "photoniclogoaperture.png";
-    public final static String ASSET_PATH = "./assets/";
+    public final static String ASSET_PATH = "";
     
     /*
         Definitions for a singleton.
