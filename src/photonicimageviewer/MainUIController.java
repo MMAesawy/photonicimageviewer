@@ -170,7 +170,9 @@ public class MainUIController implements Initializable {
         main_imageview.setOnScroll(new EventHandler<ScrollEvent>(){
            @Override
            public void handle(ScrollEvent e){
-               zoom(e.getX(), e.getY(), e.getDeltaY() > 0);
+               double X = e.getSceneX() - main_imageview.getLeft();
+               double Y = e.getSceneY() - main_imageview.getTop();
+               zoom(X, Y, e.getDeltaY() > 0);
            }
         });
         
@@ -265,7 +267,10 @@ public class MainUIController implements Initializable {
                             try{
                                 PhotonicImageViewer.getInstance().startAbout();
                             }
-                            catch(Exception exc) { exc.printStackTrace(); }
+                            catch(Exception exc) {
+                                PhotonicImageViewer.logError(exc);
+                                exc.printStackTrace(); 
+                            }
                         }
                     });
                 }
@@ -425,6 +430,7 @@ public class MainUIController implements Initializable {
              image = treader.getImage();
         }
         catch(IOException e){
+            PhotonicImageViewer.logError(e);
             PhotonicImageViewer.getInstance().displayError(
                     "Error loading image. "
                     + "\nThe image was probably deleted or moved"
@@ -504,15 +510,11 @@ public class MainUIController implements Initializable {
         main_imageview.setTranslateY(0);
         main_imageview.setFitWidth(200);
         main_imageview.setFitHeight(200);
-
-        Scene scene = main_container.getScene();
         
         // Get width of available space for the ImageView.
         double centerWidth =  0;
-        if (scene != null)
-            centerWidth += main_container.getWidth();
-        else
-            centerWidth += 640 - 20;
+        centerWidth += PhotonicImageViewer.getInstance()
+                .getMainStage().getWidth() - 20;
 
         if (main_container.getLeft() != null)
             centerWidth -= main_container.getLeft()
@@ -526,10 +528,8 @@ public class MainUIController implements Initializable {
 
         // Get height of available space for the ImageView.
         double centerHeight =  0;
-        if (scene != null)
-            centerHeight += main_container.getHeight();
-        else
-            centerHeight += 480 - 60;
+        centerHeight += PhotonicImageViewer.getInstance()
+                    .getMainStage().getHeight() - 60;
 
         if (main_container.getTop() != null)
             centerHeight -= main_container.getTop()
@@ -614,9 +614,9 @@ public class MainUIController implements Initializable {
             double oldHeight =  main_imageview.getActualHeight();
             
             // X coordinate of the mouse pointer relative to the node
-            double X = pointX * Math.abs(main_imageview.getScaleX()); 
+            double X = pointX;
             // Y coordinate of the mouse pointer relative to the node
-            double Y = pointY * Math.abs(main_imageview.getScaleX()); 
+            double Y = pointY; 
 
             /*
             mX & mY are the ratios between position of pointer
@@ -728,6 +728,7 @@ public class MainUIController implements Initializable {
                             "boxArrowActive.png"));
         }
         catch (IOException e){
+            PhotonicImageViewer.logError(e);
             System.out.println("IO Error: " + e.toString());
         }
         
@@ -748,6 +749,7 @@ public class MainUIController implements Initializable {
                     PhotonicImageViewer.ASSET_PATH + "circlebutton.png"));
         }
         catch (IOException e){
+            PhotonicImageViewer.logError(e);
             System.out.println("IO Error: " + e.toString());
         }
         

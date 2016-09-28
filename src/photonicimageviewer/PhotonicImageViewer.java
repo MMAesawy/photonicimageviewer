@@ -53,7 +53,7 @@ public class PhotonicImageViewer extends Application {
                     + "\nThe program did not find a file"
                     + " at the specified file path.";
     public final static String APP_NAME = "Photonic Image Viewer";
-    public final static String ICON_PATH = "photoniclogoaperture.png";
+    public final static String ICON_PATH = "photoniclogo2.png";
     public final static String ASSET_PATH = "";
     
     /*
@@ -68,6 +68,12 @@ public class PhotonicImageViewer extends Application {
     
     @Override
     public void start(Stage stage) throws Exception {
+        stage.setMinWidth(640);
+        stage.setMinHeight(480);
+        stage.setWidth(windowWidth);
+        stage.setHeight(windowHeight);
+        stage.setFullScreen(isFullscreen);
+        mainStage = stage;
         FXMLLoader loader = 
                 new FXMLLoader(getClass().getResource("MainUI.fxml"));
         
@@ -76,19 +82,17 @@ public class PhotonicImageViewer extends Application {
         
         Scene scene = new Scene(root);
 
-        
-        stage.setMinWidth(windowWidth);
-        stage.setMinHeight(windowHeight);
-        stage.setFullScreen(isFullscreen);
         stage.setTitle(APP_NAME);
         Image icon = loadAppIcon();
             if (icon != null) stage.getIcons().add(icon);
-        mainStage = stage;
+        
         stage.setScene(scene);
         stage.show();
         List<String> args = getParameters().getRaw();
         if (!args.isEmpty()) open(args.toArray(new String[0]));    
     }
+    
+    public Stage getMainStage() { return mainStage; }
     
     @Override
     public void stop() throws Exception{
@@ -130,7 +134,10 @@ public class PhotonicImageViewer extends Application {
                             if(Desktop.isDesktopSupported())
                                 Desktop.getDesktop().browse(new URI(href));
                         }
-                        catch(Exception exc) { exc.printStackTrace(); }
+                        catch(Exception exc) {
+                            logError(exc);
+                            exc.printStackTrace();
+                        }
                         evt.preventDefault();
                     }
                 }, false);
@@ -152,6 +159,7 @@ public class PhotonicImageViewer extends Application {
             image = new Image(new FileInputStream(ASSET_PATH + ICON_PATH));
         }
         catch(FileNotFoundException e){
+            logError(e);
             e.printStackTrace();
         }
         
@@ -212,7 +220,12 @@ public class PhotonicImageViewer extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(args);
+        try{
+            launch(args);
+        }
+        catch(Exception e){
+            PhotonicImageViewer.logError(e);
+        }
     }
     
     @Override
@@ -239,10 +252,12 @@ public class PhotonicImageViewer extends Application {
             treader.setIsWrap(wrapDirectory);
         }
         catch(NullPointerException e){
+            PhotonicImageViewer.logError(e);
             displayError(NULL_ERROR_MSG);
             return;
         }
         catch(IncompatibleFileException e){
+            PhotonicImageViewer.logError(e);
             displayError(e.getMessage());
             return;
         }
@@ -252,6 +267,17 @@ public class PhotonicImageViewer extends Application {
     public void open(String filePath){
         String[] a = { filePath };
         open(a);
+    }
+    
+    public static void logError(Exception e){
+        File config = new File("error_log.txt");
+        
+        try(FileWriter writer = new FileWriter(config, false)){
+            writer.write(e.getMessage());
+        }
+        catch(IOException exc){
+            exc.printStackTrace();
+        }
     }
     
     /**
@@ -265,10 +291,12 @@ public class PhotonicImageViewer extends Application {
             treader.setIsWrap(wrapDirectory);
         }
         catch(NullPointerException e){
+            PhotonicImageViewer.logError(e);
             displayError(NULL_ERROR_MSG);
             return;
         }
         catch(IncompatibleFileException e){
+            PhotonicImageViewer.logError(e);
             displayError(e.getMessage());
             return;
         }
@@ -309,6 +337,7 @@ public class PhotonicImageViewer extends Application {
             writer.write("isFullscreen = " + mainStage.isFullScreen() + ";\n");
         }
         catch(IOException e){
+            logError(e);
             e.printStackTrace();
         }
     }
@@ -350,7 +379,7 @@ public class PhotonicImageViewer extends Application {
                             try{
                                 windowHeight = Double.parseDouble(configLine);
                             }
-                            catch(Exception e){}
+                            catch(Exception e){ PhotonicImageViewer.logError(e);}
                             
                         }
                         else if (configLine.contains("windowWidth")){
@@ -360,13 +389,14 @@ public class PhotonicImageViewer extends Application {
                             try{
                                 windowWidth = Double.parseDouble(configLine);
                             }
-                            catch(Exception e){};
+                            catch(Exception e){PhotonicImageViewer.logError(e);}
                         }
                         configLine = "";
                     }
                 } while (i != -1);
             }
             catch(IOException e){
+                logError(e);
                 e.printStackTrace();
             }
         }

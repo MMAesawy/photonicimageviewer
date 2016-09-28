@@ -76,18 +76,21 @@ public class ImageTreader{
         
         if (files.length == 1){
             File homeDirectory;
-
-            if (files[0].isDirectory())
+            ExtensionFilter filter = new ExtensionFilter();
+            if (files[0].isDirectory()){
                 homeDirectory = files[0]; //Retrieve path of directory of file
-            else
+                imageList = homeDirectory.listFiles(filter);
+            }
+            else{
                 //startFilePath is a dir 
                 homeDirectory = files[0].getParentFile(); 
-            ExtensionFilter filter = new ExtensionFilter();
-            if (filter.accept(files[0], files[0].getName()))
-                // Create list containing all supported image files in the dir
-                imageList = homeDirectory.listFiles(filter); 
-            else{
-                throw new IncompatibleFileException();
+            
+                if (filter.accept(files[0], files[0].getName()))
+                    // Create list containing all supported image files in the dir
+                    imageList = homeDirectory.listFiles(filter); 
+                else{
+                    throw new IncompatibleFileException();
+                }
             }
             
             // Set current array index to the original file in parameter.
@@ -183,7 +186,10 @@ public class ImageTreader{
             orientation = directory.getInt(ExifIFD0Directory.TAG_ORIENTATION);
             System.out.println("orientation: " + orientation);
         }
-        catch (Exception e){ return 1; }
+        catch (Exception e){
+            //PhotonicImageViewer.logError(e);
+            return 1; 
+        }
         return orientation;
     }
     
