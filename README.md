@@ -15,4 +15,4 @@ use some cleaning up and some method sorting, and that I needed to clearly defin
 a UI/backend model early on. However, the lesson was learned the hard way which is
 the best way.
 
-Download the setup file here: https://dl.dropboxusercontent.com/u/100436700/photonicimageviewer.zip
+Download the setup file here: https://www.dropbox.com/s/up9fs3fs1eprvmr/photonicimageviewer.zip?dl=1
